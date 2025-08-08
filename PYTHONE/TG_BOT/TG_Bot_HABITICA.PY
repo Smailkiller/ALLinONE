@@ -251,7 +251,7 @@ async def stat_health_year(update: Update, context):
 
 # Основная функция для запуска бота
 def main():
-    application = Application.builder().token("7789021748:AAGOBcGT-Ef9e8NLDYQ8rk1D9cQtVB4AjTc").build()
+    application = Application.builder().token("TOKEN").build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_reply_keyboard))
