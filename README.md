@@ -21,7 +21,8 @@
 │   └── 📝 склеиватель.bat
 | 
 ├── 📁 N8N/                # Workfolw для N8N   
-│   ├── 📝 RSSparsing.json
+│   ├── 📝 RSSparsing.json   - сбор новостей из TG каналов
+│   ├── 📝 telegraph.json   - генерация картинки и публикация статьи
 │
 ├── 📁 PYTHONE/
 │   ├── 📁 SMLT_курсы/
