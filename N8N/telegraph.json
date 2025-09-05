@@ -1,0 +1,731 @@
+{
+  "name": "телеграф",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        560
+      ],
+      "id": "0f065804-6c3c-4e26-96c1-b26e7c935ea9",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegra.ph/createAccount",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"short_name\": \"FoxPub_news\",\n  \"author_name\": \"Вестник Таверны\",\n  \"author_url\": \"https://t.me/testapi\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -720,
+        112
+      ],
+      "id": "70197b5b-e2c1-4ad7-b582-70e957309fa6",
+      "name": "HTTP Request",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegra.ph/createPage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "ЗНАЧЕНИЕ ТОКЕНА"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.title2 }}"
+            },
+            {
+              "name": "author_name",
+              "value": "Гончий Fox"
+            },
+            {
+              "name": "author_url",
+              "value": "https://t.me/SMailsPub"
+            },
+            {
+              "name": "content",
+              "value": "={{ JSON.stringify($json.content) }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {}
+        }
+      },
+      "id": "a571263a-1cb6-4838-a25e-7de47a4ff635",
+      "name": "Telegraph: createPage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1328,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1000000
+        "text": "=📰 А вот и новая статья *{{ $json.result.title }}*  \n✍️ Автор: {{ $json.result.author_name }}  \n🔗 [Читать статью]({{ $json.result.url }})\n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": false,
+          "disable_web_page_preview": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        464
+      ],
+      "id": "c292442f-1b37-4c57-a842-d9c24ae7f03e",
+      "name": "Send a text message",
+      "webhookId": "fbad90fb-4536-4b45-89b1-c7eede4e84e8",
+      "credentials": {
+        "telegramApi": {
+          "id": "sMAtgOgnuCt53UZP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "32ac1c8e-b1f9-4b70-8b9b-8a6b57eaf059",
+              "leftValue": "=={{ $json.done }}",
+              "rightValue": "=={{ true }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        720
+      ],
+      "id": "a0944f83-ace4-4b0f-b919-2c9471d48561",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": 200
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        800
+      ],
+      "id": "a12b4b38-d883-49dd-98cf-339157645c6a",
+      "name": "Wait",
+      "webhookId": "55e050f8-d1d9-4279-b849-3c37cbadb7bd",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1l24bNIjotmDZh790B0e9PRw6z0mwb0X8ADFV4Qq6FtQ",
+          "mode": "list",
+          "cachedResultName": "AI_news_Extrcation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l24bNIjotmDZh790B0e9PRw6z0mwb0X8ADFV4Qq6FtQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 447395527,
+          "mode": "list",
+          "cachedResultName": "Саммари",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1l24bNIjotmDZh790B0e9PRw6z0mwb0X8ADFV4Qq6FtQ/edit#gid=447395527"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1024,
+        464
+      ],
+      "id": "f8c70fef-b6a4-44b4-b5b8-81866b94e801",
+      "name": "Download text",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ccc93KreSPNgtM0b",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        976,
+        464
+      ],
+      "id": "90ca99d6-7ae2-4e3b-8242-248297ff9c1a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// === 1) Достаём URL картинки из поля imageUrl ===\nfunction pickImageUrl(items) {\n  for (const it of items) {\n    const j = it?.json ?? {};\n    \n    // Проверяем поле imageUrl (основной приоритет)\n    if (typeof j.imageUrl === 'string' && j.imageUrl.trim()) {\n      return j.imageUrl.trim();\n    }\n    \n    // Fallback на другие поля (на всякий случай)\n    if (typeof j.url === 'string' && j.url.trim()) return j.url.trim();\n    if (typeof j.webContentLink === 'string' && j.webContentLink.trim()) return j.webContentLink.trim();\n    if (typeof j.id === 'string' && j.id.trim()) return `https://drive.google.com/uc?id=${j.id.trim()}`;\n  }\n  return null;\n}\n\nconst imgUrl = pickImageUrl(items);\n\n// === 2) Помощник: текст -> массив <p> ===\nfunction toParagraphs(text) {\n  const clean = String(text || \"\").replace(/^Итоговый\\s+текст\\s+саммари:\\s*/i, \"\");\n  return clean\n    .split(/\\n\\s*\\n/)\n    .flatMap(block => block.split(/\\r?\\n+/))\n    .map(s => s.trim())\n    .filter(Boolean)\n    .map(s => ({ tag: \"p\", children: [s] }));\n}\n\n// === 3) Собираем основной контент из строк таблицы ===\nconst content = [];\nfor (const it of items) {\n  const r = it.json || {};\n  const hasRow = Object.prototype.hasOwnProperty.call(r, \"Канал\")\n              || Object.prototype.hasOwnProperty.call(r, \"Результат\");\n  if (!hasRow) continue;\n\n  const channel = (r[\"Канал\"] ?? \"\").toString().trim();\n  const result  = (r[\"Результат\"] ?? \"\").toString();\n\n  if (channel) content.push({ tag: \"h3\", children: [channel] });\n  if (result)  content.push(...toParagraphs(result));\n}\n\n// === 4) Вставляем картинку в начало статьи ===\nif (imgUrl) {\n  content.unshift({\n    tag: \"figure\",\n    children: [{ tag: \"img\", attrs: { src: imgUrl } }]\n  });\n}\n\n// === 5) Формируем заголовок ===\nconst titleNice = `Вестник недели — ${new Date().toLocaleDateString(\"ru-RU\", {\n  day: \"numeric\", month: \"long\", year: \"numeric\"\n})}`;\n\nreturn [{\n  json: {\n    title: titleNice,\n    title2: \"Вестник недели\",\n    authorName: \"Fox\",\n    authorUrl: \"https://t.me/SMailsPub\",\n    content,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        464
+      ],
+      "id": "01d6ceed-be77-4141-a60c-ee90a0f223b2",
+      "name": "MERGE CODE"
+    },
+    {
+      "parameters": {
+        "content": "## Генерация изображения\n",
+        "height": 416,
+        "width": 944
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        608
+      ],
+      "id": "2f2ee8e7-af5b-4d45-9922-f32f6e5dbbde",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "66a9f92b-7ac4-4147-b91e-cc82ba45003f",
+              "name": "id",
+              "value": "={{ $('stablehorde пуш').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -864,
+        720
+      ],
+      "id": "801d5cef-0b43-4b71-87a5-bc74c99b05c7",
+      "name": "ID генерации"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://stablehorde.net/api/v2/generate/async",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "ВАШ АПИ КЛЮЧ"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"prompt\": \"anthropomorphic fox wearing green hoodie, sitting at desk, cartoon illustration, painterly style, warm colors, expressive face, disney style, storybook art, soft light, detailed background, cozy atmosphere\",\n  \"negative_prompt\": \"photo, realistic, 3d render, ugly, distorted, glitch, blurry\",\n  \"params\": {\n    \"sampler_name\": \"k_euler_a\",\n    \"cfg_scale\": 7,\n    \"steps\": 35,\n    \"width\": 1152,\n    \"height\": 768,\n    \"n\": 1,\n    \"clip_skip\": 2,\n    \"hires_fix\": true\n  },\n  \"models\": [\"SDXL 1.0\"],\n  \"r2\": true\n}\n",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5000,
+              "batchInterval": 10000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1024,
+        720
+      ],
+      "id": "3b5465ac-8516-4f79-863b-d403d81cb94d",
+      "name": "stablehorde пуш"
+    },
+    {
+      "parameters": {
+        "url": "=https://stablehorde.net/api/v2/generate/status/{{ $json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -704,
+        720
+      ],
+      "id": "56b31e6b-e0b9-4b20-a8b6-b4048850b38a",
+      "name": "stablehorde статус",
+      "retryOnFail": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59e51e32-5fc1-42b0-b670-2ef5f8990820",
+              "name": "generations[0].img",
+              "value": "={{ $json.generations[0].img }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        688
+      ],
+      "id": "bbd6a02b-a53e-4470-8271-0f37aad171f2",
+      "name": "Download IMG",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Вход: несколько items, у каждого может быть generations[0].img или просто img\n// Выход: 1 item { imgUrl, fileName }\n\nfunction pickFirstUrl(items) {\n  for (const it of items) {\n    const j = it.json || {};\n    // generations[].img\n    if (Array.isArray(j.generations) && j.generations[0]?.img) return j.generations[0].img;\n    // альтернативные места\n    if (typeof j.img === 'string') return j.img;\n    if (typeof j.url === 'string') return j.url;\n  }\n  return null;\n}\n\nfunction buildFileName(url) {\n  // пробуем вытащить имя и расширение из URL\n  try {\n    const u = new URL(url);\n    const base = u.pathname.split('/').pop() || ('image_' + Date.now());\n    // если нет расширения — подставим webp/png по наличию\n    const hasExt = /\\.[a-z0-9]{3,4}$/i.test(base);\n    if (hasExt) return base;\n    const extFromQuery = (u.search.match(/\\.(png|jpe?g|webp|gif)/i) || [,'webp'])[1];\n    return base + '.' + extFromQuery.toLowerCase();\n  } catch {\n    return 'image_' + Date.now() + '.webp';\n  }\n}\n\nconst url = pickFirstUrl(items);\nif (!url) {\n  // Ничего не нашли — отдаём понятное сообщение\n  return [{ json: { error: 'No image URL found in input' } }];\n}\n\nreturn [{\n  json: {\n    imgUrl: url,\n    fileName: buildFileName(url)\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        688
+      ],
+      "id": "07055e80-6997-4150-93f4-d789185d0b92",
+      "name": "чистка"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.imgUrl }}",
+        "options": {
+          "batching": {
+            "batch": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        176,
+        688
+      ],
+      "id": "0be09484-893c-4309-bbb6-632e11babc20",
+      "name": "упаковка"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "=telegraf_data_{{ $now.format(\"YYYY-MM-DD\") }}_{{ $now.format(\"HH-mm-ss\") }}.png",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "14eu8-d3aYqR2R97CiXwrj2_UE352QIEr",
+          "mode": "list",
+          "cachedResultName": "Telegraf",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/14eu8-d3aYqR2R97CiXwrj2_UE352QIEr"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        320,
+        688
+      ],
+      "id": "fe84fb26-46d4-4c35-8e29-c60106a3b66d",
+      "name": "SAVE IMG",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "sKFpIKDevn7cTWH5",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        480,
+        688
+      ],
+      "id": "2f192496-d916-48c0-8a8b-5a068ebd87d3",
+      "name": "Download IMG1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "sKFpIKDevn7cTWH5",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "ВАШ АПИ КЛЮЧ"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        688
+      ],
+      "id": "6bd4d8e3-84f1-4b02-8a87-cc32996d1173",
+      "name": "imgbb POST",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Очищаем JSON и оставляем только ссылку на картинку\nfunction extractImageUrl(items) {\n  for (const it of items) {\n    const j = it?.json ?? {};\n    \n    // Проверяем все возможные места, где может быть ссылка\n    if (j.data && typeof j.data.url === 'string' && j.data.url.trim()) {\n      return j.data.url.trim();\n    }\n    if (j.data && j.data.image && typeof j.data.image.url === 'string' && j.data.image.url.trim()) {\n      return j.data.image.url.trim();\n    }\n    if (typeof j.url === 'string' && j.url.trim()) {\n      return j.url.trim();\n    }\n  }\n  return null;\n}\n\n// Извлекаем ссылку\nconst imageUrl = extractImageUrl(items);\n\n// Возвращаем только чистый объект с ссылкой\nreturn [{\n  json: {\n    imageUrl: imageUrl\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        688
+      ],
+      "id": "1f35df21-b1c9-4084-87e9-80c593dbc1e5",
+      "name": "упаковка1"
+    },
+    {
+      "parameters": {
+        "content": "## Постинг IMG \n",
+        "height": 416,
+        "width": 1024,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        608
+      ],
+      "id": "42205e7d-8986-4ad4-8cbb-e786fa54c4d7",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Публикация статья",
+        "height": 256,
+        "width": 816,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        960,
+        400
+      ],
+      "id": "b04e7594-11b1-45d6-a9b0-427000a20349",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Настройки рендера\n{\n  \"available\": {\n    \"sampler_name\": [\n      \"k_euler\",\n      \"k_euler_a\",\n      \"k_lms\",\n      \"k_dpm_2\",\n      \"k_dpm_2_a\",\n      \"k_dpmpp_2m\",\n      \"k_dpmpp_sde\",\n      \"DDIM\"\n    ],\n    \"post_processing\": [\n      \"GFPGAN\",\n      \"CodeFormers\",\n      \"RealESRGAN_x4plus\",\n      \"RealESRGAN_x4plus_anime_6B\",\n      \"strip_background\"\n    ],\n    \"control_type\": [\n      \"canny\",\n      \"hed\",\n      \"depth\",\n      \"normal\",\n      \"openpose\",\n      \"scribble\",\n      \"seg\",\n      \"tile\",\n      \"lineart\",\n      \"softedge\",\n      \"mlsd\"\n    ]\n  },\n\n  \"request_base\": {\n    \"prompt\": \"cinematic photo of a fox, 35mm, golden hour\",\n    \"models\": [\"stable_diffusion\"], \n    \"nsfw\": false,\n    \"censor_nsfw\": true,\n    \"trusted_workers\": false,\n    \"workers\": null,\n    \"replacement_filter\": true,\n    \"allow_downgrade\": true,\n    \"r2\": true,\n    \"shared\": false\n  },\n\n  \"params_common\": {\n    \"sampler_name\": \"k_euler\",\n    \"steps\": 28,\n    \"cfg_scale\": 7.5,\n    \"seed\": 123456789,\n    \"seed_variation\": 0,\n    \"width\": 768,\n    \"height\": 512,\n    \"n\": 1,\n    \"karras\": true,\n    \"hires_fix\": false,\n    \"tiling\": false,\n    \"clip_skip\": 1,\n    \"post_processing\": [],\n    \"facefixer_strength\": 0.75,\n    \"use_gfpgan\": false,\n    \"use_codeformer\": false\n  },\n\n  \"text2img\": {\n    \"prompt\": \"cinematic photo of a fox, 35mm, golden hour\",\n    \"params\": {\n      \"sampler_name\": \"k_euler_a\",\n      \"steps\": 24,\n      \"cfg_scale\": 7,\n      \"seed\": 0,\n      \"width\": 768,\n      \"height\": 512,\n      \"n\": 2,\n      \"karras\": true,\n      \"hires_fix\": false,\n      \"tiling\": false,\n      \"clip_skip\": 1,\n      \"post_processing\": [\"RealESRGAN_x4plus\"]\n    }\n  },\n\n  \"img2img\": {\n    \"prompt\": \"moody night, neon reflections\",\n    \"source_processing\": \"img2img\",\n    \"source_image\": \"data:image/png;base64,AAA...\",\n    \"mask\": null,\n    \"params\": {\n      \"sampler_name\": \"k_dpmpp_2m\",\n      \"steps\": 30,\n      \"cfg_scale\": 6.5,\n      \"denoising_strength\": 0.45,\n      \"seed\": 0,\n      \"width\": 768,\n      \"height\": 768,\n      \"n\": 1,\n      \"karras\": true,\n      \"hires_fix\": false,\n      \"tiling\": false,\n      \"clip_skip\": 1,\n      \"post_processing\": []\n    }\n  },\n\n  \"inpaint\": {\n    \"prompt\": \"restore and complete the damaged area\",\n    \"source_processing\": \"inpainting\",\n    \"source_image\": \"data:image/png;base64,AAA...\",\n    \"mask\": \"data:image/png;base64,BBB...\",\n    \"params\": {\n      \"sampler_name\": \"k_euler\",\n      \"steps\": 35,\n      \"cfg_scale\": 7,\n      \"denoising_strength\": 0.6,\n      \"seed\": 0,\n      \"width\": 768,\n      \"height\": 768,\n      \"n\": 1,\n      \"karras\": true,\n      \"post_processing\": [\"GFPGAN\"]\n    }\n  },\n\n  \"controln\n",
+        "height": 2496,
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        1152
+      ],
+      "id": "ada352da-be58-4b28-a453-b78fb19a4cd5",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download text",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "stablehorde пуш",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegraph: createPage": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Download IMG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "ID генерации",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download text": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "MERGE CODE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MERGE CODE": {
+      "main": [
+        [
+          {
+            "node": "Telegraph: createPage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID генерации": {
+      "main": [
+        [
+          {
+            "node": "stablehorde статус",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stablehorde пуш": {
+      "main": [
+        [
+          {
+            "node": "ID генерации",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stablehorde статус": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download IMG": {
+      "main": [
+        [
+          {
+            "node": "чистка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "чистка": {
+      "main": [
+        [
+          {
+            "node": "упаковка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "упаковка": {
+      "main": [
+        [
+          {
+            "node": "SAVE IMG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SAVE IMG": {
+      "main": [
+        [
+          {
+            "node": "Download IMG1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download IMG1": {
+      "main": [
+        [
+          {
+            "node": "imgbb POST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "imgbb POST": {
+      "main": [
+        [
+          {
+            "node": "упаковка1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "упаковка1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0b5da8e2-f1ea-41d2-b9c0-11f373e24c95",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0454a987b356bf406e49af630564044a44537cad05474dab22aaa60e885cad0c"
+  },
+  "id": "nkeTex66kHvC5ZlQ",
+  "tags": []
+}
