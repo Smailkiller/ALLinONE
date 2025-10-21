@@ -1,57 +1,57 @@
 <# 
 Search_and_pin.ps1
-Ищет слова из WORD.txt по всем доступным веткам реестра:
-- имена разделов (ключей)
-- имена параметров
-- значения параметров
-Пишет результаты в index.txt рядом со скриптом.
-Показывает индикатор прогресса (спиннер + счетчик просмотренных ключей).
+Г€Г№ГҐГІ Г±Г«Г®ГўГ  ГЁГ§ WORD.txt ГЇГ® ГўГ±ГҐГ¬ Г¤Г®Г±ГІГіГЇГ­Г»Г¬ ГўГҐГІГЄГ Г¬ Г°ГҐГҐГ±ГІГ°Г :
+- ГЁГ¬ГҐГ­Г  Г°Г Г§Г¤ГҐГ«Г®Гў (ГЄГ«ГѕГ·ГҐГ©)
+- ГЁГ¬ГҐГ­Г  ГЇГ Г°Г Г¬ГҐГІГ°Г®Гў
+- Г§Г­Г Г·ГҐГ­ГЁГї ГЇГ Г°Г Г¬ГҐГІГ°Г®Гў
+ГЏГЁГёГҐГІ Г°ГҐГ§ГіГ«ГјГІГ ГІГ» Гў index.txt Г°ГїГ¤Г®Г¬ Г±Г® Г±ГЄГ°ГЁГЇГІГ®Г¬.
+ГЏГ®ГЄГ Г§Г»ГўГ ГҐГІ ГЁГ­Г¤ГЁГЄГ ГІГ®Г° ГЇГ°Г®ГЈГ°ГҐГ±Г±Г  (Г±ГЇГЁГ­Г­ГҐГ° + Г±Г·ГҐГІГ·ГЁГЄ ГЇГ°Г®Г±Г¬Г®ГІГ°ГҐГ­Г­Г»Гµ ГЄГ«ГѕГ·ГҐГ©).
 #>
 
-# --- Настройки/пути ---
+# --- ГЌГ Г±ГІГ°Г®Г©ГЄГЁ/ГЇГіГІГЁ ---
 $ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $WordFile  = Join-Path $ScriptDir 'WORD.txt'
 $OutFile   = Join-Path $ScriptDir 'index.txt'
 
-# если хочешь точный % прогресса (медленнее и прожорливее), поменяй на $true
+# ГҐГ±Г«ГЁ ГµГ®Г·ГҐГёГј ГІГ®Г·Г­Г»Г© % ГЇГ°Г®ГЈГ°ГҐГ±Г±Г  (Г¬ГҐГ¤Г«ГҐГ­Г­ГҐГҐ ГЁ ГЇГ°Г®Г¦Г®Г°Г«ГЁГўГҐГҐ), ГЇГ®Г¬ГҐГ­ГїГ© Г­Г  $true
 $PreciseProgress = $false
 
-# --- Проверки ---
+# --- ГЏГ°Г®ГўГҐГ°ГЄГЁ ---
 if (-not (Test-Path $WordFile)) {
-    Write-Error ("WORD.txt не найден: {0}. Ожидается строка вида 'Искать по ключам: слово1, слово2,'." -f $WordFile)
+    Write-Error ("WORD.txt Г­ГҐ Г­Г Г©Г¤ГҐГ­: {0}. ГЋГ¦ГЁГ¤Г ГҐГІГ±Гї Г±ГІГ°Г®ГЄГ  ГўГЁГ¤Г  'Г€Г±ГЄГ ГІГј ГЇГ® ГЄГ«ГѕГ·Г Г¬: Г±Г«Г®ГўГ®1, Г±Г«Г®ГўГ®2,'." -f $WordFile)
     exit 1
 }
 
-# --- Читаем ключевые слова ---
+# --- Г—ГЁГІГ ГҐГ¬ ГЄГ«ГѕГ·ГҐГўГ»ГҐ Г±Г«Г®ГўГ  ---
 try {
     $raw = Get-Content -Path $WordFile -Raw -ErrorAction Stop
 } catch {
-    Write-Error ("Не удалось прочитать WORD.txt {0}: {1}" -f $WordFile, $_.Exception.Message)
+    Write-Error ("ГЌГҐ ГіГ¤Г Г«Г®Г±Гј ГЇГ°Г®Г·ГЁГІГ ГІГј WORD.txt {0}: {1}" -f $WordFile, $_.Exception.Message)
     exit 1
 }
 
-# Берём всё после двоеточия, делим по запятым, чистим от пробелов/кавычек
+# ГЃГҐГ°ВёГ¬ ГўГ±Вё ГЇГ®Г±Г«ГҐ Г¤ГўГ®ГҐГІГ®Г·ГЁГї, Г¤ГҐГ«ГЁГ¬ ГЇГ® Г§Г ГЇГїГІГ»Г¬, Г·ГЁГ±ГІГЁГ¬ Г®ГІ ГЇГ°Г®ГЎГҐГ«Г®Гў/ГЄГ ГўГ»Г·ГҐГЄ
 $afterColon = ($raw -split ":", 2)[-1]
 $terms = $afterColon -split "," |
-    ForEach-Object { $_.Trim(" `t`r`n`"'’”“") } |
+    ForEach-Object { $_.Trim(" `t`r`n`"'вЂ™вЂќвЂњ") } |
     Where-Object { $_ -match '\S' } |
     Select-Object -Unique
 
 if (-not $terms -or $terms.Count -eq 0) {
-    Write-Error "В WORD.txt не найдено ни одного ключевого слова после двоеточия."
+    Write-Error "Г‚ WORD.txt Г­ГҐ Г­Г Г©Г¤ГҐГ­Г® Г­ГЁ Г®Г¤Г­Г®ГЈГ® ГЄГ«ГѕГ·ГҐГўГ®ГЈГ® Г±Г«Г®ГўГ  ГЇГ®Г±Г«ГҐ Г¤ГўГ®ГҐГІГ®Г·ГЁГї."
     exit 1
 }
 
-# --- Регулярка (безопасно экранируем) ---
+# --- ГђГҐГЈГіГ«ГїГ°ГЄГ  (ГЎГҐГ§Г®ГЇГ Г±Г­Г® ГЅГЄГ°Г Г­ГЁГ°ГіГҐГ¬) ---
 $escaped = $terms | ForEach-Object { [Regex]::Escape($_) }
 $pattern = "(?i)(" + ($escaped -join "|") + ")"
 $rx      = [Regex]::new($pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
-# --- Подготовка вывода ---
-# Пересоздаём index.txt (если хочешь дописывать — закомментируй строку ниже)
+# --- ГЏГ®Г¤ГЈГ®ГІГ®ГўГЄГ  ГўГ»ГўГ®Г¤Г  ---
+# ГЏГҐГ°ГҐГ±Г®Г§Г¤Г ВёГ¬ index.txt (ГҐГ±Г«ГЁ ГµГ®Г·ГҐГёГј Г¤Г®ГЇГЁГ±Г»ГўГ ГІГј вЂ” Г§Г ГЄГ®Г¬Г¬ГҐГ­ГІГЁГ°ГіГ© Г±ГІГ°Г®ГЄГі Г­ГЁГ¦ГҐ)
 "" | Out-File -FilePath $OutFile -Encoding UTF8
 
-# Чтобы не дублировать одинаковые строки
+# Г—ГІГ®ГЎГ» Г­ГҐ Г¤ГіГЎГ«ГЁГ°Г®ГўГ ГІГј Г®Г¤ГЁГ­Г ГЄГ®ГўГ»ГҐ Г±ГІГ°Г®ГЄГЁ
 $set = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
 function Add-Line {
@@ -61,7 +61,7 @@ function Add-Line {
     }
 }
 
-# Приводим значения реестра к строке
+# ГЏГ°ГЁГўГ®Г¤ГЁГ¬ Г§Г­Г Г·ГҐГ­ГЁГї Г°ГҐГҐГ±ГІГ°Г  ГЄ Г±ГІГ°Г®ГЄГҐ
 function ValueToString {
     param($v)
     if ($null -eq $v) { return "" }
@@ -70,11 +70,11 @@ function ValueToString {
     else                      { return [string]$v }
 }
 
-Add-Line ("=== Поиск: {0} ===" -f ($terms -join ', '))
-Add-Line ("Дата: {0}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))
+Add-Line ("=== ГЏГ®ГЁГ±ГЄ: {0} ===" -f ($terms -join ', '))
+Add-Line ("Г„Г ГІГ : {0}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))
 Add-Line ""
 
-# --- Определяем ветки реестра и порядок обхода ---
+# --- ГЋГЇГ°ГҐГ¤ГҐГ«ГїГҐГ¬ ГўГҐГІГЄГЁ Г°ГҐГҐГ±ГІГ°Г  ГЁ ГЇГ®Г°ГїГ¤Г®ГЄ Г®ГЎГµГ®Г¤Г  ---
 $regDrives = Get-PSDrive -PSProvider Registry | Select-Object -ExpandProperty Name
 $preferredOrder = @('HKLM','HKCU','HKCR','HKU','HKCC')
 $ordered = @()
@@ -82,7 +82,7 @@ foreach ($p in $preferredOrder) { if ($regDrives -contains $p) { $ordered += $p 
 $ordered += ($regDrives | Where-Object { $preferredOrder -notcontains $_ })
 $ordered = $ordered | Select-Object -Unique
 
-# --- Обход по веткам с прогрессом ---
+# --- ГЋГЎГµГ®Г¤ ГЇГ® ГўГҐГІГЄГ Г¬ Г± ГЇГ°Г®ГЈГ°ГҐГ±Г±Г®Г¬ ---
 $spinner = @('-', '\', '|', '/')
 
 foreach ($drive in $ordered) {
@@ -92,7 +92,7 @@ foreach ($drive in $ordered) {
 
     try {
         if ($PreciseProgress) {
-            # Точный %: сначала собираем список всех ключей (медленно на больших ветках)
+            # Г’Г®Г·Г­Г»Г© %: Г±Г­Г Г·Г Г«Г  Г±Г®ГЎГЁГ°Г ГҐГ¬ Г±ГЇГЁГ±Г®ГЄ ГўГ±ГҐГµ ГЄГ«ГѕГ·ГҐГ© (Г¬ГҐГ¤Г«ГҐГ­Г­Г® Г­Г  ГЎГ®Г«ГјГёГЁГµ ГўГҐГІГЄГ Гµ)
             $allKeys = @(Get-ChildItem -Path $rootPath -Recurse -ErrorAction SilentlyContinue)
             $total   = $allKeys.Count
             $i = 0
@@ -124,7 +124,7 @@ foreach ($drive in $ordered) {
                             $vv = Get-ItemPropertyValue -Path $key.PSPath -Name $vn -ErrorAction Stop
                             $vs = ValueToString $vv
                             if ($vs -and $rx.IsMatch($vs)) {
-                                $snippet = if ($vs.Length -gt 160) { $vs.Substring(0,160) + '…' } else { $vs }
+                                $snippet = if ($vs.Length -gt 160) { $vs.Substring(0,160) + 'вЂ¦' } else { $vs }
                                 Add-Line ("[DATA] {0} -> {1} = {2}" -f $fullKeyPath, $vn, $snippet)
                             }
                         } catch { }
@@ -136,7 +136,7 @@ foreach ($drive in $ordered) {
             Write-Host ("Done {0} (keys scanned: {1})." -f $rootPath, $total)
         }
         else {
-            # Лёгкий индикатор: спиннер + счётчик (без точного процента)
+            # Г‹ВёГЈГЄГЁГ© ГЁГ­Г¤ГЁГЄГ ГІГ®Г°: Г±ГЇГЁГ­Г­ГҐГ° + Г±Г·ВёГІГ·ГЁГЄ (ГЎГҐГ§ ГІГ®Г·Г­Г®ГЈГ® ГЇГ°Г®Г¶ГҐГ­ГІГ )
             $processed = 0
             $spinIdx   = 0
 
@@ -170,7 +170,7 @@ foreach ($drive in $ordered) {
                             $vv = Get-ItemPropertyValue -Path $key.PSPath -Name $vn -ErrorAction Stop
                             $vs = ValueToString $vv
                             if ($vs -and $rx.IsMatch($vs)) {
-                                $snippet = if ($vs.Length -gt 160) { $vs.Substring(0,160) + '…' } else { $vs }
+                                $snippet = if ($vs.Length -gt 160) { $vs.Substring(0,160) + 'вЂ¦' } else { $vs }
                                 Add-Line ("[DATA] {0} -> {1} = {2}" -f $fullKeyPath, $vn, $snippet)
                             }
                         } catch { }
@@ -188,6 +188,6 @@ foreach ($drive in $ordered) {
 }
 
 Add-Line ""
-Add-Line "=== Конец отчёта ==="
+Add-Line "=== ГЉГ®Г­ГҐГ¶ Г®ГІГ·ВёГІГ  ==="
 
-Write-Host ("Готово. Результаты: {0}" -f $OutFile)
+Write-Host ("ГѓГ®ГІГ®ГўГ®. ГђГҐГ§ГіГ«ГјГІГ ГІГ»: {0}" -f $OutFile)
